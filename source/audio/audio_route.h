@@ -1,17 +1,17 @@
 /* Select the isolated sp26coreaudio.so before mmdevapi initializes a driver.
- * Uses an exact reviewed PE identity, loader reference, original string and
+ * Checks the PE architecture, actual loader reference, original string and
  * zero driver table. Only the target process's eight string bytes change.
  * Caller must own an inactive target or hold its debug load event.
  */
 static int audio_route_read(HANDLE process,QWORD at,void*out,SIZE_T n){SIZE_T got=0;return ReadProcessMemory(process,(void*)(uintptr_t)at,out,n,&got)&&got==n;}
 static int audio_route_equal(const BYTE*a,const BYTE*b,SIZE_T n){for(SIZE_T i=0;i<n;i++)if(a[i]!=b[i])return 0;return 1;}
 static int audio_route_apply(HANDLE process,QWORD base){
- DWORD pe=0,signature=0,timestamp=1,size=0,checksum=0;QWORD table=1;
+ DWORD pe=0,signature=0,size=0;WORD machine=0,magic=0;QWORD table=1;
  if(base>UINT64_MAX-0x2d000||!audio_route_read(process,base+0x3c,&pe,4)||pe>4096)return 1;
  if(!audio_route_read(process,base+pe,&signature,4)||signature!=0x4550||
-    !audio_route_read(process,base+pe+8,&timestamp,4)||timestamp||
-    !audio_route_read(process,base+pe+24+56,&size,4)||size!=0x2d000||
-    !audio_route_read(process,base+pe+24+64,&checksum,4)||checksum!=0x376cc)return 2;
+    !audio_route_read(process,base+pe+4,&machine,2)||machine!=0x8664||
+    !audio_route_read(process,base+pe+24,&magic,2)||magic!=0x20b||
+    !audio_route_read(process,base+pe+24+56,&size,4)||size<0x28050||size>0x40000000)return 2;
  static const BYTE reference[]={0x48,0x8d,0x05,0xbd,0xc3,0,0};BYTE bytes[10];
  if(!audio_route_read(process,base+0x12a0a,bytes,7)||!audio_route_equal(bytes,reference,7))return 3;
  static const BYTE original[]={'w',0,'i',0,'n',0,'e',0,0,0};

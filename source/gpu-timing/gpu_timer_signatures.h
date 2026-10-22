@@ -1,5 +1,5 @@
 /* Only short identity/signature windows from the user-supplied executable.
- * Full game binaries are NOT included. */
+ * Full game binaries are NOT included. See evidence/diagnosis-TR.md. */
 #define GPU_TIMER_READ_RVA 0x07e759f0u
 #define GPU_TIMER_LOAD_RVA 0x07e75a0du
 #define GPU_TIMER_SCALE_RVA 0x10b9d850u

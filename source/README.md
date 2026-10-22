@@ -1,53 +1,72 @@
 # Compatibility improvement sources
 
-This folder contains sources for the performance, shader compatibility, audio, GPU timing and cache improvements used by release 0.1.
+Components used by release 1.
 
 | Folder | Component |
 | --- | --- |
-| `shader/` | D3DMetal `BarycentricsSupported` capability adjustment and isolated ABI tests. |
-| `performance/` | Late input-poll wait, instruction-boundary checks and exact code signatures. |
-| `audio/` | Audio routing, driver identity verification and runtime preparation. |
-| `gpu-timing/` | Zero-divisor guard for GPU timestamp conversion and code signatures. |
-| `cache/` | Connectivity settings, non-destructive cache link preparation and filesystem tests. |
-| `common/` | Minimal Windows x64 ABI declarations used by the helper fragments. |
+| `shader/` | Barycentrics capability adjustment and two exact-match shader compatibility replacements. |
+| `performance/` | Late input-poll wait and instruction checks. |
+| `gpu-timing/` | Raw-frequency timestamp conversion, zero-divisor protection and overflow handling. |
+| `exceptions/` | Eight checked dispatcher-relative operand corrections. |
+| `launch/` | Initialization wait policy and a modeless notice that keeps event processing active. |
+| `audio/` | Audio routing, driver verification and local runtime preparation. |
+| `cache/` | Optional connectivity/cache preparation and filesystem tests. |
+| `ultra-textures/` | Native Mac downloader, verification, local texture service and offline tests. |
+| `common/` | Minimal Windows x64 ABI declarations. |
 
 ## Shader component
 
-On macOS with Xcode Command Line Tools installed:
+With Xcode Command Line Tools installed:
 
 ```sh
 bash source/shader/build.sh
 ```
 
-This builds an x86-64 `sp26.dylib` in `source/shader/build/`, verifies its ad-hoc signature and runs the included contract checks. The shader component uses identity-guarded native dispatch slots for the tested D3DMetal build. Other builds are not automatically supported by these fixed offsets.
+This builds and signs an x86-64 `sp26.dylib`, then runs the capability contract tests. The module verifies the relevant D3DMetal method and dispatch layout. Shader replacements are limited to two exact bytecode hashes; other shaders pass through unchanged. The capability change affects only a successful, correctly sized OPTIONS3 response advertising barycentrics support.
 
-The adjustment changes only a successful, correctly sized OPTIONS3 response advertising `BarycentricsSupported = 1`. It enables the game's fallback shader path; it does not implement the unsupported shader instruction. The tests exercise the two calling conventions and preservation of unrelated fields, results and errno. They are not a rendering or FPS benchmark.
+These checks do not establish rendering correctness or an FPS improvement.
 
 ## Audio and runtime preparation
 
-`audio/RuntimePreparation.pm` exposes:
+`RuntimePreparation::prepare_runtime($crossover_root, $empty_output_directory, $resources_directory)` creates a local runtime using copies and symlinks. Require the module by an absolute path; supply the released EXE and dylib in the resources directory. Installed CrossOver files are read rather than overwritten. Preparation does not launch the game.
 
-```perl
-RuntimePreparation::prepare_runtime($crossover_root, $empty_output_directory, $release_resources_directory);
+Audio changes require matching instructions at the operation being applied. The helper headers route and verify the prepared driver before audio initialization.
+
+## Helper integration
+
+The headers use the helper's existing process state, memory read/write operations and logging functions. Apply memory changes only while the relevant target is held, retain complete instruction checks, and verify writes.
+
+- GPU timing uses the real returned frequency. Failed results, zero frequency and quotient overflow produce an unavailable sample. The zero-divisor guard remains intact; conversion success does not prove that every query is valid.
+- Exception corrections check every original code window before writing the eight operands.
+- Input polling is updated only at the established late initialization point.
+- Late initialization keeps the required-hook safety deadline. A modeless waiting notice lets debug event processing continue and closes when startup completes or ends.
+
+The launch contract tests run with temporary host fixtures and do not launch the game:
+
+```sh
+bash source/launch/test.sh
 ```
 
-Require the module by an absolute path. The resources directory must contain the released `MW4-Compatibility.exe` and `sp26.dylib`. The module creates a separate runtime using copies and symlinks, prepares the audio correction and early loading of the shader component, then verifies signatures. Installed CrossOver files are read, not overwritten. It does not launch the game.
-
-`audio_route.h` redirects the tested mmdevapi implementation to the prepared driver before audio initialization. `audio_observe.h` verifies the loaded native driver and corrected instruction sequence.
-
-## Helper integration fragments
-
-The performance, GPU timing and audio headers are the release's helper fragments, not standalone applications. Integration requires the helper's process state (`R`), memory read/write helpers, logging helpers, and controlled thread handling.
-
-- Apply the input-poll wait only after audio routing and successful late thread suspension. Preserve its full code-window, Sleep target, instruction-boundary and readback checks. The host supplies `rex_has_legacy_input` after validating the supported input loop.
-- The GPU timing guard requires the verified original code and padding, a held target and the helper's memory-write protections. It preserves the nonzero-divisor path and returns an unavailable sample for the zero-divisor path; it does not invent a GPU frequency.
-
 ## Cache component
-
-From the repository root:
 
 ```sh
 perl source/cache/test-cache-connectivity.pl "$(pwd)/source/cache/SP26CacheConnectivity.pm"
 ```
 
-The module supports planning, applying and checking the connectivity/cache changes. Its tests use temporary fixtures, preserve existing cache data, and cover missing directories, repeat application and conflicting paths. This is cache preparation, not shader compilation.
+The module plans and applies non-destructive cache/connectivity preparation. Its best-effort entry point records an unavailable or conflicting optional operation and allows launch to continue. Existing cache data is preserved. These tests use temporary files and do not compile game shaders.
+
+## Ultra textures
+
+The complete component is in `ultra-textures/`. Its entry command is intended
+to run from the `MW4-Ultra-Textures` folder placed inside the game's `sp26`.
+The reviewed implementation revision is 0.2.2; it is bundled with release 1.
+Upstream MIT notices and the modification record are preserved alongside it.
+No downloaded publisher content, catalogue, settings or session token is included.
+
+Offline tests use temporary data and synthetic loopback HTTP:
+
+```sh
+MW4_ADDON_TEST_PACKAGE="$(pwd)/source/ultra-textures" PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s source/ultra-textures/tests
+```
+
+These tests do not activate the real privileged service or establish rendering quality.

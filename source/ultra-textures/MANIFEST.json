@@ -1,0 +1,116 @@
+{
+  "version": "0.2.2",
+  "scope": "Included Ultra Textures component; implementation revision 0.2.2",
+  "upstream_commit": "b79be342461d24d50797593c5282ecf1e2e5617b",
+  "files": [
+    {
+      "path": "storage.py",
+      "bytes": 4253,
+      "sha256": "7ab7149918dabc22bb9151790b89f99f9e78221bc8979bd2252da1b3ffbd66e9",
+      "executable": false
+    },
+    {
+      "path": "addon.py",
+      "bytes": 22051,
+      "sha256": "68bb989b7db4cf6ac2e8a65ef97c472274960e7fb5a1fe9f608d98e4e3f17831",
+      "executable": false
+    },
+    {
+      "path": "interaction.py",
+      "bytes": 3718,
+      "sha256": "be8650cbbf9751d84f004c7a7d9628842d02767c7f4c42aab0a34988b08acd23",
+      "executable": false
+    },
+    {
+      "path": "session_entry.py",
+      "bytes": 1000,
+      "sha256": "d35de51a19755d01696abe63ec8041cff5d2c2ab8a07d8b3a3b21973fc3955e1",
+      "executable": false
+    },
+    {
+      "path": "texture_bridge.py",
+      "bytes": 14796,
+      "sha256": "07eadff796b5028a653e86875a2bf0c1242d896ab820c07b12517174affc7752",
+      "executable": false
+    },
+    {
+      "path": "README.txt",
+      "bytes": 4492,
+      "sha256": "4905e0d4dc478e392ce29ec8095029a485e631d44d7d77acb68741d5c3ae61ff",
+      "executable": false
+    },
+    {
+      "path": "MODIFICATIONS.txt",
+      "bytes": 3789,
+      "sha256": "a0aeb0748064d7a6d140fab97b077faa07b7ab53ab48d3c54fa41d9d871f7bc0",
+      "executable": false
+    },
+    {
+      "path": "VALIDATION.txt",
+      "bytes": 1453,
+      "sha256": "e2fc084a5dcb7a02220e31331358d3e112623df7accd6388643ec6a726c6a7b5",
+      "executable": false
+    },
+    {
+      "path": "UPSTREAM-LICENSE.txt",
+      "bytes": 1064,
+      "sha256": "3e52b1f87516a720921d2f4188342989e65bbc5a06607cda430babc7a0269dfb",
+      "executable": false
+    },
+    {
+      "path": "Ultra-Textures.command",
+      "bytes": 478,
+      "sha256": "cff4f301949f7c665349e2de6fdd855215e5ec082758e8174974c51d81e1ebb3",
+      "executable": true
+    },
+    {
+      "path": "vendor/ccsmirror.py",
+      "bytes": 33365,
+      "sha256": "34275c94328432f13ab4edbe719e2dc94861397901c941d5eb03daeb039aa59b",
+      "executable": false
+    },
+    {
+      "path": "vendor/cdnxpak.py",
+      "bytes": 829,
+      "sha256": "7e6b24188becf91eecb6e360108e7f0b7dbffcf4f82a13a5503191d00ae177be",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/paths.py",
+      "bytes": 7591,
+      "sha256": "0e5059aa434e60c81a3c8468a481e48a909e1842649c2a61a22fb243636b4a28",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/pack.py",
+      "bytes": 8508,
+      "sha256": "b7f3ab43069438f7dd09f299402a1d251cd32633302ddefaa0cb21c75d98d5c6",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/upstream.py",
+      "bytes": 7724,
+      "sha256": "5850af2e40ab0c6260c22f2fe230952c047e849a817f2c9d10f1e96e92570776",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/version.py",
+      "bytes": 2415,
+      "sha256": "cf5f5694d5aaaf22a9096c347cc4f7018e73ccd205744b87bf69bd44569db1ec",
+      "executable": false
+    },
+    {
+      "path": "vendor/ccslib/mirrordb.py",
+      "bytes": 2117,
+      "sha256": "7097e19485b642be578eea7740e3193157accee3c10ee56bf69fd4ddf996b8c4",
+      "executable": false
+    }
+  ],
+  "bundle_version": "1"
+}

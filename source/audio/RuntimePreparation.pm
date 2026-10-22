@@ -51,7 +51,7 @@ sub prepare_runtime {
  run('/usr/bin/codesign','--force','--sign','-','--identifier','ntdll-55554944adc455845ef73829b5b976d2d9b8e0d4',"$native/ntdll.so");
  my$audio=read_file("$r/x86_64-unix/winecoreaudio.so");
  my$old='@rpath/winecoreaudio.so'.chr(0);my$new='@rpath/sp26audio.so'.chr(0);
- die "The installed audio runtime is not supported.\n" unless substr($audio,0x608,length($old)) eq $old && substr($audio,0x5105,3) eq pack('H*','0f47c6');
+ die "Audio preparation could not recognize this CrossOver runtime. Try the recommended CrossOver Preview setup.\n" unless substr($audio,0x608,length($old)) eq $old && substr($audio,0x5105,3) eq pack('H*','0f47c6');
  substr($audio,0x608,length($old))=$new.chr(0)x(length($old)-length($new));substr($audio,0x5105,3)=pack('H*','909090');
  write_file("$out/sp26coreaudio.so",$audio);
  run('/usr/bin/codesign','--force','--sign','-','--identifier','winecoreaudio_probe-55554944af16194c7dbd392a9b3d362eb19d601d',"$out/sp26coreaudio.so");

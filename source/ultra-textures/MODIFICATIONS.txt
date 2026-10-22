@@ -1,0 +1,64 @@
+Upstream: voidfnc/mw4-texture-streaming-research
+Commit: b79be342461d24d50797593c5282ecf1e2e5617b (v0.3.0-beta)
+License: MIT, preserved in UPSTREAM-LICENSE.txt.
+
+Only the downloader and its standard-library catalogue/path/CDN helpers are
+vendored. The Windows GUI, hosts manager, diskguard, process manager, installer,
+game setup and cache editing tools are excluded.
+
+vendor/ccsmirror.py adaptations:
+  Require a valid MD5 ETag as well as length before accepting a download.
+  Do not adopt orphan files based only on their length.
+  Refresh changed catalogue sizes/flags and invalidate stale object metadata.
+  Check disk reserve before each piece and honor pause between retry attempts.
+  Wait for all worker writes before the final SQLite commit.
+  Make failed verification produce a nonzero exit code.
+  Read Retry-After from the HTTP response header when the CDN throttles.
+
+New Mac controller and command files:
+  Separate storage/settings, campaign Ultra preset, resumable download, final
+  full verification, truthful incomplete state, relevant catalogue verification,
+  download locking, optional external drive, and explicit start/stop/restore.
+
+New offline texture_bridge.py:
+  Exact indexed object allowlist; no upstream fetching or quality filter.
+  ETag metadata, HEAD, GET, byte ranges, length checks, first-access MD5 checks.
+  Two loopback-only listeners. A short privileged supervisor binds port 80 and
+  temporarily edits one hosts block; its serving child drops to the user's UID.
+  Stop requests require the private session token. Cleanup removes only the
+  exact owned block and retains unrelated hosts changes. No game process access.
+
+Version 0.2 flow changes:
+  One Ultra-Textures.command entry for confirmation, download/resume, verify,
+  start, stop and recovery. Auto-detect the game from placement inside sp26.
+  Default mirror next to the game; optional external location on low space.
+  Native confirmation with actual catalogue/remaining sizes before transfer.
+  Terminal progress bar, speed, ETA, percentage; private detailed run logs.
+  Native backend and narrow privileged supervisor unchanged from 0.1.
+  Catalogue reads now close their file handles explicitly.
+
+Version 0.2.1 storage changes:
+  Default reserve 10 GiB, as requested by the user. Preserve per-piece checks
+  and the planner's existing 2% download-space margin.
+  Migrate the former 40 GiB generated default in 0.1/0.2 settings; preserve
+  storage location, downloaded objects and other custom reserve values.
+  Show estimated free space after the remaining download and the reserve.
+  Explain separate service storage versus the engine cache in confirmation.
+  No engine-cache builder, game changes or automatic activation added.
+
+Version 0.2.2 storage cleanup:
+  New storage.py: after full verification, remove only old canonical-layout
+  variants and .part leftovers of the same id whose current indexed file
+  independently passes length + MD5. Keep unknown ids, user files, symlinks,
+  current indexed objects and all texture sizes. Recheck identities before unlink.
+  Shared per-mirror flock in the add-on controller for the whole download,
+  verification or serving session; cancellation creates no mirror or lock.
+  Refresh catalogue metadata before verification, preventing changed wire/flag
+  entries from being accepted as complete on the basis of a stale status.
+  No vendor source changes, engine-cache deletion, bulk download or game changes.
+  Ready mirrors from older releases require this revision's verification and
+  cleanup pass before serving. Activation still needs a separate user choice.
+
+Stable bundle 1:
+  Bundle the unchanged 0.2.2 implementation with the compatibility helper.
+  Update documentation and manifest to include subsequent local-delivery evidence.

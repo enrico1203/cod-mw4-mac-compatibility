@@ -85,6 +85,7 @@ static bool writable(uintptr_t slot) {
     return kr==KERN_SUCCESS && address<=slot && size>=sizeof(void *) && slot-address<=size-sizeof(void *) &&
         (info.protection&(VM_PROT_READ|VM_PROT_WRITE))==(VM_PROT_READ|VM_PROT_WRITE);
 }
+#include "method_contract.h"
 static void consider_image(const struct mach_header *header,intptr_t slide) {
     int saved_errno=errno;Dl_info info={0};
     if(!dladdr(header,&info)||!info.dli_fname||!target_image_name(info.dli_fname)||header->magic!=MH_MAGIC_64) goto done;
@@ -103,7 +104,8 @@ static void consider_image(const struct mach_header *header,intptr_t slide) {
     uintptr_t ds=(uintptr_t)slide+DIRECT_SLOT,us=(uintptr_t)slide+UNPACK_SLOT;
     uintptr_t dm=(uintptr_t)slide+DIRECT_METHOD,um=(uintptr_t)slide+UNPACK_METHOD;
     bool installed_direct=false,installed_unpack=false;
-    if(matched&&writable(ds)&&writable(us)) {
+    bool layout=method_contract(dm,DIRECT_METHOD)&&method_contract(um,UNPACK_METHOD);
+    if(layout&&writable(ds)&&writable(us)) {
         uintptr_t a=atomic_load((_Atomic uintptr_t *)ds),b=atomic_load((_Atomic uintptr_t *)us);
         if(a==dm&&b==um) {
             original_direct=(Direct)dm;original_unpack=(Unpack)um;
@@ -115,9 +117,9 @@ static void consider_image(const struct mach_header *header,intptr_t slide) {
             }
         }
     }
-    char line[320];int n=snprintf(line,sizeof line,
-        "SP26_CAPABILITY {\"event\":\"install\",\"pid\":%d,\"uuid_matched\":%s,\"direct_installed\":%s,\"unpack_installed\":%s,\"mask_enabled\":%s}\n",
-        getpid(),matched?"true":"false",installed_direct?"true":"false",installed_unpack?"true":"false",CAP_MASK?"true":"false");
+    char line[384];int n=snprintf(line,sizeof line,
+        "SP26_CAPABILITY {\"event\":\"install\",\"pid\":%d,\"uuid_matched\":%s,\"layout_verified\":%s,\"direct_installed\":%s,\"unpack_installed\":%s,\"mask_enabled\":%s}\n",
+        getpid(),matched?"true":"false",layout?"true":"false",installed_direct?"true":"false",installed_unpack?"true":"false",CAP_MASK?"true":"false");
     emit(line,n,sizeof line);
 done: errno=saved_errno;
 }

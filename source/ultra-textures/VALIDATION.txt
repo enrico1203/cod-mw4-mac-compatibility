@@ -1,0 +1,22 @@
+Ultra Textures — bundled component validation, 22 October 2026
+
+The included component uses the reviewed 0.2.2 implementation unchanged.
+41 automated tests cover temporary filesystem/SQLite fixtures, synthetic local
+HTTP, download consent, progress/storage policy, catalogue refresh, integrity,
+redundant-object cleanup and shared locking. These do not use game content.
+
+Subsequent real user validation on the tested M4 Max completed the campaign
+mirror (103,631 pieces, no bad files). During a real game session, two read-only
+local-service snapshots showed 666 -> 729 successful deliveries, no missing or
+corrupt pieces, and 55,191,287 additional bytes delivered in 58.93 seconds.
+IPv4/IPv6 loopback and routing were verified. No synthetic texture request was
+sent to produce those observations. These are HTTP delivery counts, not frames
+or unique textures; they do not establish which mip was rendered or an FPS gain.
+
+The combined release preserves the implementation and changes only bundling
+documentation and manifest metadata. No game assets, catalogues, account data,
+keys, downloaded mirror, or private settings are included. Starting the service
+still requires an explicit user action and macOS administrator permission.
+No new privileged activation, bulk download or gameplay test is implied by
+packaging it with the compatibility helper. Long-session and comparative visual
+and performance testing remain outside this validation scope.

@@ -132,4 +132,48 @@ sub apply {
  $report->{state}='applied';_write("$out/transaction.json",$json->encode($report));
  return {changed=>JSON::PP::true,backup=>$out,after=>$report->{after}};
 }
+sub best_effort {
+ my($game,$backups)=@_;
+ my$report={optional=>JSON::PP::true};
+ my@actions=(
+  ['connectivity',sub {
+   my$settings="$game/steam_settings";my$ini="$settings/configs.main.ini";
+   return {state=>'skipped',reason=>'Connectivity settings are absent or use a different layout.'}
+    unless -d$settings && !-l$settings && -f$ini && !-l$ini;
+   my@before_id=lstat($ini);
+   return {state=>'skipped',reason=>'Connectivity settings have multiple filesystem links.'} unless $before_id[3]==1;
+   my$before=_read($ini);my$after=proposed($before);
+   return {state=>'ready'} if $before eq $after;
+   make_path($backups);
+   my$out=tempdir('connectivity-XXXXXX',DIR=>$backups,CLEANUP=>0);
+   _write("$out/configs.main.before.ini",$before);
+   _write("$out/configs.main.after.ini",$after);
+   my@now=lstat($ini);
+   die "Connectivity settings changed during preparation. They were preserved.\n"
+    unless -f$ini && !-l$ini && join(':',@before_id[0,1,2,3]) eq join(':',@now[0,1,2,3]) && _read($ini) eq $before;
+   _atomic_write($ini,$after,$before_id[2]&0777);
+   die "Connectivity settings could not be verified. Backup: $out\n" unless _read($ini) eq $after;
+   return {state=>'applied',backup=>$out};
+  }],
+  ['cache',sub {
+   my$cache=dirname($game).'/xpak_cache';my$link="$game/xpak_cache";
+   return {state=>'skipped',reason=>'The parent cache folder is absent or uses a different layout.'}
+    unless -d$cache && !-l$cache;
+   if(-e$link || -l$link){
+    return {state=>'ready'} if -l$link && -d$link && (abs_path($link)//'') eq (abs_path($cache)//'');
+    return {state=>'skipped',reason=>'The existing cache path was preserved.'};
+   }
+   symlink('../xpak_cache',$link) or die "Could not create the optional cache link.\n";
+   die "The optional cache link could not be verified.\n" unless -l$link && -d$link && (abs_path($link)//'') eq abs_path($cache);
+   return {state=>'applied'};
+  }]
+ );
+ for my$action(@actions){
+  my($name,$operation)=@$action;
+  my$result=eval{$operation->()};my$error=$@;
+  if($error){$error=~s/\s+\z//;$result={state=>'failed',reason=>$error};}
+  $report->{$name}=$result;
+ }
+ return $report;
+}
 1;
